@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float turnSpeed = 10f;
     public float gravity = -9.81f;
     public PlayerCamera cameraFollow;
+    public Animator animator;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -17,12 +18,14 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     private Vector3 verticalVelocity;
     private bool isGrounded;
+    private float currentSpeed;
 
     [HideInInspector] public bool canMove = true;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        currentSpeed = walkSpeed;
     }
 
     void Update()
@@ -37,7 +40,11 @@ public class PlayerController : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-        float moveSpeed = isSprinting ? sprintSpeed : walkSpeed;
+
+        if (isGrounded)
+        {
+            currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        }
 
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
@@ -51,18 +58,48 @@ public class PlayerController : MonoBehaviour
             Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
 
-            controller.Move(moveDirection * moveSpeed * Time.deltaTime);
+            controller.Move(moveDirection * currentSpeed * Time.deltaTime);
+
+            if (animator != null)
+            {
+                float animSpeed = (currentSpeed == sprintSpeed) ? 1f : 0.5f;
+                animator.SetFloat("Speed", animSpeed);
+            }
+        }
+        else if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
         }
 
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+
+            if (animator != null)
+            {
+                if (inputDirection.magnitude >= 0.1f)
+                {
+                    if (currentSpeed == sprintSpeed)
+                    {
+                        animator.SetTrigger("SprintJump");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("WalkJump");
+                    }
+                }
+                else
+                {
+                    animator.SetTrigger("IdleJump");
+                }
+            }
         }
 
         if (isGrounded && verticalVelocity.y < 0)
         {
             verticalVelocity.y = -2f;
         }
+
         verticalVelocity.y += gravity * Time.deltaTime;
         controller.Move(verticalVelocity * Time.deltaTime);
     }
