@@ -15,6 +15,10 @@ public class CarController : MonoBehaviour
     private float currentSpeed;        // Velocidad ACTUAL del auto, va cambiando poco a poco
     private float turnInput;
 
+    public float CurrentSpeed => currentSpeed;
+    public float SteerInput => turnInput;
+    public float TurnSpeed => turnSpeed;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
