@@ -9,8 +9,14 @@ public class PlayerController : MonoBehaviour
     public float gravity = -9.81f;
     public PlayerCamera cameraFollow;
 
+    [Header("Ground Check")]
+    public Transform groundCheck;
+    public float groundDistance = 0.3f;
+    public LayerMask groundMask;
+
     private CharacterController controller;
     private Vector3 verticalVelocity;
+    private bool isGrounded;
 
     [HideInInspector] public bool canMove = true;
 
@@ -25,6 +31,8 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
+
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -46,12 +54,12 @@ public class PlayerController : MonoBehaviour
             controller.Move(moveDirection * moveSpeed * Time.deltaTime);
         }
 
-        if (controller.isGrounded && Input.GetButtonDown("Jump"))
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
-        if (controller.isGrounded && verticalVelocity.y < 0)
+        if (isGrounded && verticalVelocity.y < 0)
         {
             verticalVelocity.y = -2f;
         }

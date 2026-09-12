@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 92801982}
   - component: {fileID: 92801981}
   - component: {fileID: 92801980}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Road (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -226,7 +226,7 @@ Transform:
   m_GameObject: {fileID: 92801979}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -331,26 +331,6 @@ MonoBehaviour:
   exitPoint: {fileID: 548132439}
   playerCamera: {fileID: 800170720}
   carCamera: {fileID: 330585543}
---- !u!114 &245757101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 245757092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7c3e91f4b2d8e5479a1f6c3d8e4b2a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WheelVisuals
-  carController: {fileID: 245757093}
-  frontLeft: {fileID: 0}
-  frontRight: {fileID: 0}
-  rearLeft: {fileID: 0}
-  rearRight: {fileID: 0}
-  modelRoot: {fileID: 608179521}
-  wheelRadius: 35
-  maxSteerAngle: 30
 --- !u!65 &245757100
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -372,6 +352,27 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.9737902, y: 1.3026851, z: 4.716587}
   m_Center: {x: -0.004226446, y: 0.7477233, z: 0.0029087067}
+--- !u!114 &245757101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245757092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7c3e91f4b2d8e5479a1f6c3d8e4b2a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheelVisuals
+  carController: {fileID: 245757093}
+  frontLeft: {fileID: 0}
+  frontRight: {fileID: 0}
+  rearLeft: {fileID: 0}
+  rearRight: {fileID: 0}
+  modelRoot: {fileID: 608179521}
+  wheelRadius: 35
+  maxSteerAngle: 30
+  steerReturnSpeed: 120
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -995,6 +996,7 @@ Transform:
   m_Children:
   - {fileID: 1983871337}
   - {fileID: 1189771770}
+  - {fileID: 1258449512}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1007186617
@@ -1010,9 +1012,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   walkSpeed: 5
+  sprintSpeed: 9
+  jumpHeight: 0.8
   turnSpeed: 10
   gravity: -9.81
   cameraFollow: {fileID: 800170721}
+  groundCheck: {fileID: 1258449512}
+  groundDistance: 0.3
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
   canMove: 1
 --- !u!143 &1007186618
 CharacterController:
@@ -1038,7 +1047,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 1.1, z: 0}
 --- !u!1 &1189771769
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,6 +1160,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1189771769}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1258449511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1258449512}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1258449512
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1258449511}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1007186616}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1837712311
 GameObject:
   m_ObjectHideFlags: 0
@@ -1330,7 +1370,7 @@ GameObject:
   - component: {fileID: 2101399667}
   - component: {fileID: 2101399666}
   - component: {fileID: 2101399665}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Road
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1425,7 +1465,7 @@ Transform:
   m_GameObject: {fileID: 2101399664}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 30}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1443,7 +1483,7 @@ GameObject:
   - component: {fileID: 2136385341}
   - component: {fileID: 2136385340}
   - component: {fileID: 2136385339}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
