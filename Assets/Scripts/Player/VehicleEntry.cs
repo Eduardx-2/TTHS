@@ -16,6 +16,7 @@ public class VehicleEntry : MonoBehaviour
     public float forwardEjectForce = 2f;
 
     private CarController carController;
+    private Rigidbody vehicleRigidbody;
     private GameObject nearbyPlayer;  
     private GameObject currentPlayer;  
     private PlayerController playerController;
@@ -26,8 +27,13 @@ public class VehicleEntry : MonoBehaviour
     void Start()
     {
         carController = GetComponent<CarController>();
+        vehicleRigidbody = GetComponent<Rigidbody>();
 
         carController.enabled = false;
+        if (vehicleRigidbody != null)
+        {
+            vehicleRigidbody.isKinematic = true;
+        }
 
         if (playerCamera != null) playerCamera.SetActive(true);
         if (carCamera != null) carCamera.SetActive(false);
@@ -80,7 +86,11 @@ public class VehicleEntry : MonoBehaviour
         playerController.canMove = false;
         player.SetActive(false);
 
-        // Turn on car control
+        if (vehicleRigidbody != null)
+        {
+            vehicleRigidbody.isKinematic = false;
+        }
+
         carController.enabled = true;
 
         if (playerCamera != null) playerCamera.SetActive(false);
@@ -99,28 +109,93 @@ public class VehicleEntry : MonoBehaviour
         float vehicleSpeed = vehicleVelocity.magnitude;
 
         currentPlayer.SetActive(true);
-        if (exitPoint != null)
-        {
-            currentPlayer.transform.position = exitPoint.position;
-        }
 
         bool shouldEject = vehicleSpeed >= minEjectSpeed && playerRagdollController != null;
         if (shouldEject)
         {
+            if (exitPoint != null)
+            {
+                currentPlayer.transform.position = exitPoint.position;
+            }
+
             Vector3 sideDirection = Vector3.Cross(Vector3.up, transform.forward).normalized;
             Vector3 impulse = sideDirection * lateralEjectForce + transform.forward * forwardEjectForce + Vector3.up * upwardEjectForce;
             playerRagdollController.EnableRagdoll(vehicleVelocity, impulse, gameObject);
         }
         else
         {
+            PlacePlayerOutsideVehicle(currentPlayer);
             playerController.canMove = true;
         }
 
         carController.enabled = false;
+        if (vehicleRigidbody != null)
+        {
+            vehicleRigidbody.isKinematic = true;
+        }
 
         if (carCamera != null) carCamera.SetActive(false);
         if (playerCamera != null) playerCamera.SetActive(true);
 
         currentPlayer = null;
+    }
+
+    void PlacePlayerOutsideVehicle(GameObject player)
+    {
+        CharacterController characterController = player.GetComponent<CharacterController>();
+        Vector3 spawnPosition = exitPoint != null ? exitPoint.position : transform.position - transform.right * 2.5f;
+
+        if (characterController != null)
+        {
+            spawnPosition = FindClearExitPosition(spawnPosition, characterController);
+            characterController.enabled = false;
+            player.transform.position = spawnPosition;
+            characterController.enabled = true;
+            return;
+        }
+
+        player.transform.position = spawnPosition;
+    }
+
+    Vector3 FindClearExitPosition(Vector3 preferredPosition, CharacterController characterController)
+    {
+        Vector3 side = -transform.right;
+        float[] distances = { 0f, 0.5f, 1f, 1.5f, 2f };
+
+        foreach (float distance in distances)
+        {
+            Vector3 candidate = preferredPosition + side * distance;
+            if (!IsCapsuleBlockedByVehicle(candidate, characterController))
+            {
+                return candidate;
+            }
+        }
+
+        return preferredPosition + side * 2.5f;
+    }
+
+    bool IsCapsuleBlockedByVehicle(Vector3 position, CharacterController characterController)
+    {
+        Vector3 worldCenter = position + characterController.center;
+        float cylinderHalf = Mathf.Max(0f, characterController.height * 0.5f - characterController.radius);
+        Vector3 bottom = worldCenter - Vector3.up * cylinderHalf;
+        Vector3 top = worldCenter + Vector3.up * cylinderHalf;
+        float radius = characterController.radius * 0.95f;
+
+        Collider[] hits = Physics.OverlapCapsule(bottom, top, radius, ~0, QueryTriggerInteraction.Ignore);
+        foreach (Collider hit in hits)
+        {
+            if (hit == null || hit.isTrigger)
+            {
+                continue;
+            }
+
+            if (hit.transform == transform || hit.transform.IsChildOf(transform))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
