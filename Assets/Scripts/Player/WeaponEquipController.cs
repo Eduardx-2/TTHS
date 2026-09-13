@@ -9,9 +9,9 @@ public class WeaponEquipController : MonoBehaviour
     public PlayerController playerController;
 
     [Header("Configuración")]
-    public KeyCode equipKey = KeyCode.F;
+    public KeyCode equipKey = KeyCode.Mouse2;
     public KeyCode fireKey = KeyCode.P;
-    private KeyCode aimKey = KeyCode.Mouse1;
+    public KeyCode aimKey = KeyCode.Mouse1;
     public float transitionSpeed = 10f;
 
     [Header("Munición")]

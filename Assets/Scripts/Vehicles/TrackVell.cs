@@ -1,7 +1,11 @@
 using UnityEngine;
+using TMPro;
 
 public class TrackVell : MonoBehaviour
 {
+    [Header("UI Marcha")]
+    public TextMeshProUGUI gearText;
+
     [Header("Cambios de marcha")]
     public KeyCode gearUpKey = KeyCode.T;
     public KeyCode gearDownKey = KeyCode.G;
@@ -29,14 +33,30 @@ public class TrackVell : MonoBehaviour
     {
         carController = GetComponent<CarController>();
         currentGear = Mathf.Clamp(currentGear, minGear, maxGear);
+
+        if (gearText != null)
+        {
+            gearText.gameObject.SetActive(false);
+        }
     }
 
     void Update()
     {
         if (carController != null && !carController.enabled)
         {
+            if (gearText != null && gearText.gameObject.activeSelf)
+            {
+                gearText.gameObject.SetActive(false);
+            }
             return;
         }
+
+        if (gearText != null && !gearText.gameObject.activeSelf)
+        {
+            gearText.gameObject.SetActive(true);
+        }
+
+        UpdateGearUI();
 
         if (!CanShift())
         {
@@ -51,6 +71,27 @@ public class TrackVell : MonoBehaviour
         {
             ShiftDown();
         }
+    }
+
+    void UpdateGearUI()
+    {
+        if (gearText == null) return;
+
+        string gearDisplay;
+        if (currentGear < 0)
+        {
+            gearDisplay = "R";
+        }
+        else if (currentGear == 0)
+        {
+            gearDisplay = "N";
+        }
+        else
+        {
+            gearDisplay = currentGear.ToString();
+        }
+
+        gearText.text = $"MARCHA: {gearDisplay}";
     }
 
     bool CanShift()
@@ -140,4 +181,3 @@ public class TrackVell : MonoBehaviour
         return forwardAccelerations[index];
     }
 }
-

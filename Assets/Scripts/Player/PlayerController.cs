@@ -16,13 +16,19 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundMask;
 
     [Header("Jump Cooldown")]
-    public float jumpCooldown = 1.2f; // Pausa obligatoria entre saltos en segundos
-    private float nextJumpTime = 0f;  // Temporizador interno
+    public float jumpCooldown = 1.2f;
+    private float nextJumpTime = 0f;
+
+    [Header("Aim Pitch (inclinación vertical al apuntar)")]
+    public float aimPitchMultiplier = 1f;
+    public float aimPitchSmoothing = 15f;
 
     private CharacterController controller;
     private Vector3 verticalVelocity;
     private bool isGrounded;
     private float currentSpeed;
+    private Transform chestBone;
+    private float currentAimPitch;
 
     [HideInInspector] public bool canMove = true;
 
@@ -37,6 +43,11 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         currentSpeed = walkSpeed;
+
+        if (animator != null)
+        {
+            chestBone = animator.GetBoneTransform(HumanBodyBones.Chest);
+        }
     }
 
     void Update()
@@ -66,10 +77,7 @@ public class PlayerController : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        // Verificamos si estamos apuntando
         bool isAiming = animator != null && animator.GetBool("IsAiming");
-
-        // Solo permitimos correr si NO está apuntando y presiona LeftShift
         bool isSprinting = !isAiming && Input.GetKey(KeyCode.LeftShift);
 
         if (isGrounded)
@@ -79,7 +87,6 @@ public class PlayerController : MonoBehaviour
 
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
-        // Si nos estamos moviendo O si estamos apuntando, rotamos hacia la cámara
         if (inputDirection.magnitude >= 0.1f || isAiming)
         {
             float cameraYaw = cameraFollow != null ? cameraFollow.GetYaw() : transform.eulerAngles.y;
@@ -87,12 +94,10 @@ public class PlayerController : MonoBehaviour
 
             if (isAiming && inputDirection.magnitude < 0.1f)
             {
-                // Si estamos quietos pero apuntando, el frente del personaje mira hacia donde mira la cámara
                 targetMoveDirection = Quaternion.Euler(0f, cameraYaw, 0f) * Vector3.forward;
             }
             else
             {
-                // Movimiento normal guiado por el input
                 Quaternion cameraRotation = Quaternion.Euler(0f, cameraYaw, 0f);
                 targetMoveDirection = cameraRotation * inputDirection;
             }
@@ -120,12 +125,9 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Speed", 0f);
         }
 
-        // Lógica de Salto: Validamos suelo, botón, que NO esté apuntando y que haya pasado el Cooldown
         if (isGrounded && Input.GetButtonDown("Jump") && !isAiming && Time.time >= nextJumpTime)
         {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
-            // Registramos cuándo podrá volver a saltar
             nextJumpTime = Time.time + jumpCooldown;
 
             if (animator != null)
@@ -155,5 +157,18 @@ public class PlayerController : MonoBehaviour
 
         verticalVelocity.y += gravity * Time.deltaTime;
         controller.Move(verticalVelocity * Time.deltaTime);
+    }
+
+    void LateUpdate()
+    {
+        bool isAiming = animator != null && animator.GetBool("IsAiming");
+
+        float targetAimPitch = (isAiming && cameraFollow != null) ? cameraFollow.GetPitch() : 0f;
+        currentAimPitch = Mathf.Lerp(currentAimPitch, targetAimPitch, Time.deltaTime * aimPitchSmoothing);
+
+        if (chestBone != null && Mathf.Abs(currentAimPitch) > 0.01f)
+        {
+            chestBone.RotateAround(chestBone.position, transform.right, -currentAimPitch * aimPitchMultiplier * 0.1f);
+        }
     }
 }
