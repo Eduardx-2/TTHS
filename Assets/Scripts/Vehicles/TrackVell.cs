@@ -17,6 +17,9 @@ public class TrackVell : MonoBehaviour
     public int maxGear = 5;
     public int currentGear = 1;
 
+    [Header("Datos del vehículo (opcional)")]
+    public VehicleData vehicleData;
+
     [Header("Velocidad por marcha")]
     public float reverseSpeedCap = 7f;
     public float[] forwardSpeedCaps = { 8f, 14f, 20f, 26f, 32f };
@@ -32,6 +35,7 @@ public class TrackVell : MonoBehaviour
     void Awake()
     {
         carController = GetComponent<CarController>();
+        ApplyVehicleDataIfPresent();
         currentGear = Mathf.Clamp(currentGear, minGear, maxGear);
 
         if (gearText != null)
@@ -70,6 +74,28 @@ public class TrackVell : MonoBehaviour
         else if (Input.GetKeyDown(gearDownKey))
         {
             ShiftDown();
+        }
+    }
+
+    void ApplyVehicleDataIfPresent()
+    {
+        if (vehicleData == null)
+        {
+            return;
+        }
+
+        reverseSpeedCap = vehicleData.reverseSpeedCap;
+        reverseAcceleration = vehicleData.reverseAcceleration;
+        neutralAcceleration = vehicleData.neutralAcceleration;
+
+        if (vehicleData.forwardSpeedCaps != null && vehicleData.forwardSpeedCaps.Length > 0)
+        {
+            forwardSpeedCaps = vehicleData.forwardSpeedCaps;
+        }
+
+        if (vehicleData.forwardAccelerations != null && vehicleData.forwardAccelerations.Length > 0)
+        {
+            forwardAccelerations = vehicleData.forwardAccelerations;
         }
     }
 

@@ -1226,6 +1226,7 @@ GameObject:
   - component: {fileID: 1007186617}
   - component: {fileID: 1007186619}
   - component: {fileID: 1007186620}
+  - component: {fileID: 1007186621}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1315,7 +1316,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60805a9f1d594c241bc9e1a66b88bc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponEquipController
-  ak47Model: {fileID: 1126364658}
+  weaponModel: {fileID: 1126364658}
+  weaponData: {fileID: 11400000, guid: e7b0c5d4f6a17b8923de45fa67bc8901, type: 2}
+  weaponInventory: {fileID: 1007186621}
   animator: {fileID: 999585352}
   muzzle: {fileID: 0}
   playerController: {fileID: 0}
@@ -1349,6 +1352,24 @@ MonoBehaviour:
   ragdollDuration: 1.4
   recoverUprightOffset: 0.9
   groundRayHeight: 8
+--- !u!114 &1007186621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007186615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f8a3b2d4e95f6701bc23de45fa6789, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponInventory
+  weapons:
+  - {fileID: 11400000, guid: e7b0c5d4f6a17b8923de45fa67bc8901, type: 2}
+  currentWeaponIndex: 0
+  enableWeaponSwitching: 0
+  nextWeaponKey: 101
+  previousWeaponKey: 113
 --- !u!1 &1126364658 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a809b9e5d1943cf418e049e12ab6993a, type: 3}
