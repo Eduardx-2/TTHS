@@ -8,10 +8,18 @@ public class VehicleEntry : MonoBehaviour
     [Header("Cameras")]
     public GameObject playerCamera; 
     public GameObject carCamera; 
+
+    [Header("Salida en movimiento")]
+    public float minEjectSpeed = 4f;
+    public float lateralEjectForce = 4f;
+    public float upwardEjectForce = 2f;
+    public float forwardEjectForce = 2f;
+
     private CarController carController;
     private GameObject nearbyPlayer;  
     private GameObject currentPlayer;  
     private PlayerController playerController;
+    private PlayerRagdollController playerRagdollController;
 
     private bool isDriving = false;
 
@@ -60,6 +68,7 @@ public class VehicleEntry : MonoBehaviour
         isDriving = true;
         currentPlayer = player;
         playerController = player.GetComponent<PlayerController>();
+        playerRagdollController = player.GetComponent<PlayerRagdollController>();
 
         if (playerController == null)
         {
@@ -80,14 +89,32 @@ public class VehicleEntry : MonoBehaviour
 
     void ExitCar()
     {
+        if (currentPlayer == null || playerController == null)
+        {
+            return;
+        }
+
         isDriving = false;
+        Vector3 vehicleVelocity = carController != null ? carController.WorldVelocity : Vector3.zero;
+        float vehicleSpeed = vehicleVelocity.magnitude;
 
         currentPlayer.SetActive(true);
         if (exitPoint != null)
         {
             currentPlayer.transform.position = exitPoint.position;
         }
-        playerController.canMove = true;
+
+        bool shouldEject = vehicleSpeed >= minEjectSpeed && playerRagdollController != null;
+        if (shouldEject)
+        {
+            Vector3 sideDirection = Vector3.Cross(Vector3.up, transform.forward).normalized;
+            Vector3 impulse = sideDirection * lateralEjectForce + transform.forward * forwardEjectForce + Vector3.up * upwardEjectForce;
+            playerRagdollController.EnableRagdoll(vehicleVelocity, impulse, gameObject);
+        }
+        else
+        {
+            playerController.canMove = true;
+        }
 
         carController.enabled = false;
 

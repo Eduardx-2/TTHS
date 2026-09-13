@@ -11,6 +11,7 @@ public class CarController : MonoBehaviour
     public float desaceleracion = 15f; // Qué tan rápido frena cuando sueltas la tecla
 
     private Rigidbody rb;
+    private TrackVell trackVell;
     private float moveInput;
     private float currentSpeed;        // Velocidad ACTUAL del auto, va cambiando poco a poco
     private float turnInput;
@@ -18,10 +19,16 @@ public class CarController : MonoBehaviour
     public float CurrentSpeed => currentSpeed;
     public float SteerInput => turnInput;
     public float TurnSpeed => turnSpeed;
+    public Vector3 WorldVelocity => rb != null ? rb.linearVelocity : Vector3.zero;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+<<<<<<< HEAD
+=======
+        trackVell = GetComponent<TrackVell>();
+        rb.freezeRotation = true;
+>>>>>>> 28c40eee505819cc862f538a4daf7372a367cf2c
 
         // Bloqueamos que el auto se voltee de lado o hacia adelante (X y Z),
         // pero dejamos libre el eje Y para poder girar con angularVelocity.
@@ -32,13 +39,51 @@ public class CarController : MonoBehaviour
     {
         float rawVertical = Input.GetAxis("Vertical");
 
+        if (trackVell != null && Mathf.Abs(currentSpeed) < 0.6f)
+        {
+            if (rawVertical < -0.1f)
+            {
+                trackVell.SetGear(-1);
+            }
+            else if (rawVertical > 0.1f && (trackVell.IsReverseGear() || trackVell.IsNeutralGear()))
+            {
+                trackVell.SetGear(1);
+            }
+        }
+
+        float activeForwardSpeed = speed;
+        float activeReverseSpeed = reverseSpeed;
+        float activeAcceleration = aceleracion;
+
+        if (trackVell != null)
+        {
+            activeForwardSpeed = trackVell.GetMaxForwardSpeedForGear();
+            activeReverseSpeed = trackVell.GetMaxReverseSpeed();
+            activeAcceleration = trackVell.GetAccelerationForGear();
+            if (trackVell.IsReverseGear())
+            {
+                activeAcceleration = Mathf.Max(activeAcceleration, 12f);
+            }
+        }
+
         // targetSpeed es la velocidad a la que QUEREMOS llegar (no la actual)
-        float targetSpeed = rawVertical > 0 ? rawVertical * speed : rawVertical * reverseSpeed;
+        float targetSpeed = 0f;
+        if (rawVertical > 0f)
+        {
+            targetSpeed = rawVertical * Mathf.Max(0f, activeForwardSpeed);
+        }
+        else if (rawVertical < 0f)
+        {
+            if (trackVell == null || trackVell.IsReverseGear())
+            {
+                targetSpeed = rawVertical * Mathf.Max(0f, activeReverseSpeed);
+            }
+        }
 
         // Si el jugador está presionando algo, aceleramos; si no, desaceleramos
         if (Mathf.Abs(rawVertical) > 0.01f)
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, aceleracion * Time.deltaTime);
+            currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, activeAcceleration * Time.deltaTime);
         }
         else
         {
