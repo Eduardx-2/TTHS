@@ -785,7 +785,7 @@ Transform:
   m_GameObject: {fileID: 548132438}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.1270001, y: 0.79099995, z: 0}
+  m_LocalPosition: {x: -1.347, y: 0.79099995, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1168,6 +1168,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 8
+  jumpCooldown: 1.2
   canMove: 1
 --- !u!143 &1007186618
 CharacterController:
@@ -1208,9 +1209,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponEquipController
   ak47Model: {fileID: 1126364658}
   animator: {fileID: 999585352}
+  muzzle: {fileID: 0}
+  playerController: {fileID: 0}
   equipKey: 102
+  fireKey: 112
   transitionSpeed: 30
+  magazineSize: 25
+  fireRate: 10
+  reloadTime: 1.4
+  shootRange: 80
   isEquipped: 1
+  currentAmmo: 25
 --- !u!114 &1007186620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1225,6 +1234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRagdollController
   ragdollDuration: 1.4
   recoverUprightOffset: 0.9
+  groundRayHeight: 8
 --- !u!1 &1126364658 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a809b9e5d1943cf418e049e12ab6993a, type: 3}

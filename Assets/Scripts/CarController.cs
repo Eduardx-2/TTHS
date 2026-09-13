@@ -25,10 +25,10 @@ public class CarController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         trackVell = GetComponent<TrackVell>();
-        rb.freezeRotation = true;
 
-        Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount = 1;
+        // Bloqueamos que el auto se voltee de lado o hacia adelante (X y Z),
+        // pero dejamos libre el eje Y para poder girar con angularVelocity.
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
     void Update()
@@ -92,10 +92,6 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        Vector3 moveDirection = transform.forward * moveInput;
-        moveDirection.y = rb.linearVelocity.y;
-        rb.linearVelocity = moveDirection;
-
         if (Mathf.Abs(moveInput) > 0.1f)
         {
             float giroFinal = turnInput;
@@ -105,8 +101,20 @@ public class CarController : MonoBehaviour
                 giroFinal = -turnInput;
             }
 
-            Quaternion turnRotation = Quaternion.Euler(0f, giroFinal * Time.fixedDeltaTime, 0f);
-            rb.MoveRotation(rb.rotation * turnRotation);
+            // angularVelocity se integra junto con el resto de la física en el mismo paso,
+            // en vez de aplicar un salto de rotación separado (MoveRotation), lo que suele
+            // sentirse más fluido en curvas continuas.
+            rb.angularVelocity = Vector3.up * (giroFinal * Mathf.Deg2Rad);
         }
+        else
+        {
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        // Calculamos la velocidad usando la dirección actual (ya actualizada por angularVelocity
+        // del paso anterior, ya que la rotación y la velocidad ahora se integran juntas).
+        Vector3 moveDirection = transform.forward * moveInput;
+        moveDirection.y = rb.linearVelocity.y;
+        rb.linearVelocity = moveDirection;
     }
 }

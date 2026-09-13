@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class WheelVisuals : MonoBehaviour
 {
-    [Header("Referencias")]
     public CarController carController;
     public Transform frontLeft;
     public Transform frontRight;
@@ -11,7 +10,6 @@ public class WheelVisuals : MonoBehaviour
     public Transform rearRight;
     public Transform modelRoot;
 
-    [Header("Ajustes visuales")]
     public float wheelRadius = 35f;
     public float maxSteerAngle = 30f;
     public float steerReturnSpeed = 120f;
@@ -50,9 +48,12 @@ public class WheelVisuals : MonoBehaviour
         float turnSpeed = carController.TurnSpeed;
         float rollSign = speed >= 0f ? 1f : -1f;
         float rollDelta = (speed * Time.deltaTime / wheelRadius) * Mathf.Rad2Deg * rollSign;
-        float signedSteerInput = speed < -0.1f ? -steerInput : steerInput;
+
+        // The front wheels' steering angle should always match the steering input directly,
+        // regardless of whether the car is moving forward or backward — just like a real
+        // steering wheel: turning it right always points the front wheels right.
         float targetSteerDegrees = turnSpeed > 0f
-            ? Mathf.Clamp(signedSteerInput / turnSpeed * maxSteerAngle, -maxSteerAngle, maxSteerAngle)
+            ? Mathf.Clamp(steerInput / turnSpeed * maxSteerAngle, -maxSteerAngle, maxSteerAngle)
             : 0f;
 
         foreach (WheelSlot slot in wheelSlots)
@@ -69,7 +70,6 @@ public class WheelVisuals : MonoBehaviour
                         continue;
                     }
 
-                    // Quitamos el steer aplicado en el frame previo para evitar drift acumulado.
                     part.RotateAround(center, transform.up, -slot.AppliedSteerAngle);
                 }
             }
@@ -219,7 +219,6 @@ public class WheelVisuals : MonoBehaviour
 
     static Vector3 GetRollAxis(Transform reference)
     {
-        // El rin ya rodaba bien con el eje local X; usamos ese mismo eje del rin.
         return reference.right;
     }
 

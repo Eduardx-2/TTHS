@@ -15,6 +15,10 @@ public class PlayerController : MonoBehaviour
     public float groundDistance = 0.3f;
     public LayerMask groundMask;
 
+    [Header("Jump Cooldown")]
+    public float jumpCooldown = 1.2f; // Pausa obligatoria entre saltos en segundos
+    private float nextJumpTime = 0f;  // Temporizador interno
+
     private CharacterController controller;
     private Vector3 verticalVelocity;
     private bool isGrounded;
@@ -61,7 +65,12 @@ public class PlayerController : MonoBehaviour
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+
+        // Verificamos si estamos apuntando
+        bool isAiming = animator != null && animator.GetBool("IsAiming");
+
+        // Solo permitimos correr si NO está apuntando y presiona LeftShift
+        bool isSprinting = !isAiming && Input.GetKey(KeyCode.LeftShift);
 
         if (isGrounded)
         {
@@ -69,7 +78,6 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
-        bool isAiming = animator != null && animator.GetBool("IsAiming");
 
         // Si nos estamos moviendo O si estamos apuntando, rotamos hacia la cámara
         if (inputDirection.magnitude >= 0.1f || isAiming)
@@ -112,9 +120,13 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Speed", 0f);
         }
 
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        // Lógica de Salto: Validamos suelo, botón, que NO esté apuntando y que haya pasado el Cooldown
+        if (isGrounded && Input.GetButtonDown("Jump") && !isAiming && Time.time >= nextJumpTime)
         {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+
+            // Registramos cuándo podrá volver a saltar
+            nextJumpTime = Time.time + jumpCooldown;
 
             if (animator != null)
             {
