@@ -9,10 +9,16 @@ public class WeaponEquipController : MonoBehaviour
     public PlayerController playerController;
 
     [Header("Configuración")]
-    public KeyCode equipKey = KeyCode.Mouse2;
-    public KeyCode fireKey = KeyCode.P;
+    public KeyCode equipKey = KeyCode.F;
+    public KeyCode fireKey = KeyCode.Mouse0;
     public KeyCode aimKey = KeyCode.Mouse1;
     public float transitionSpeed = 10f;
+
+    [Header("Soltar / Recoger")]
+    public KeyCode dropKey = KeyCode.X;       // G ya la usa el cambio de marchas del auto
+    public KeyCode pickupKey = KeyCode.F;     // Misma tecla que equipar
+    public float pickupRange = 2f;
+    public float dropForwardForce = 2f;
 
     [Header("Munición")]
     public int magazineSize = 25;
@@ -22,6 +28,7 @@ public class WeaponEquipController : MonoBehaviour
 
     [Header("Estado Actual (Debug)")]
     public bool isEquipped = true;
+    public bool isDropped = false;
     public int currentAmmo = 25;
 
     private int weaponLayerIndex;
@@ -29,6 +36,12 @@ public class WeaponEquipController : MonoBehaviour
     private float reloadFinishTime;
     private bool isReloading;
     private Camera playerCam;
+
+    private Transform originalParent;
+    private Vector3 originalLocalPosition;
+    private Quaternion originalLocalRotation;
+    private Rigidbody weaponRigidbody;
+    private Collider weaponCollider;
 
     void Start()
     {
@@ -49,6 +62,15 @@ public class WeaponEquipController : MonoBehaviour
         if (ak47Model != null)
         {
             ak47Model.SetActive(isEquipped);
+
+            // Guardamos dónde estaba originalmente el arma (en la mano) para poder
+            // devolverla ahí exactamente cuando se recoja.
+            originalParent = ak47Model.transform.parent;
+            originalLocalPosition = ak47Model.transform.localPosition;
+            originalLocalRotation = ak47Model.transform.localRotation;
+
+            weaponRigidbody = ak47Model.GetComponent<Rigidbody>();
+            weaponCollider = ak47Model.GetComponent<Collider>();
         }
 
         if (animator != null && weaponLayerIndex >= 0)
@@ -67,9 +89,25 @@ public class WeaponEquipController : MonoBehaviour
             return;
         }
 
-        bool canUseWeapon = isEquipped && (playerController == null || playerController.canMove);
+        // Soltar el arma al piso
+        if (isEquipped && !isDropped && Input.GetKeyDown(dropKey))
+        {
+            DropWeapon();
+        }
 
-        if (Input.GetKeyDown(equipKey) && (playerController == null || playerController.canMove))
+        // Recoger el arma del piso, si estás lo bastante cerca
+        if (isDropped && Input.GetKeyDown(pickupKey))
+        {
+            float distance = Vector3.Distance(transform.position, ak47Model.transform.position);
+            if (distance <= pickupRange)
+            {
+                PickupWeapon();
+            }
+        }
+
+        bool canUseWeapon = isEquipped && !isDropped && (playerController == null || playerController.canMove);
+
+        if (!isDropped && Input.GetKeyDown(equipKey) && (playerController == null || playerController.canMove))
         {
             isEquipped = !isEquipped;
 
@@ -168,5 +206,70 @@ public class WeaponEquipController : MonoBehaviour
         isReloading = true;
         reloadFinishTime = Time.time + reloadTime;
         animator.SetBool("IsFiring", false);
+    }
+
+    void DropWeapon()
+    {
+        if (ak47Model == null)
+        {
+            return;
+        }
+
+        isEquipped = false;
+        isDropped = true;
+        isReloading = false;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsAiming", false);
+            animator.SetBool("IsFiring", false);
+        }
+
+        // La desprendemos de la mano y la dejamos en el mundo, en su posición/rotación actual
+        ak47Model.transform.SetParent(null, true);
+
+        if (weaponRigidbody == null)
+        {
+            weaponRigidbody = ak47Model.AddComponent<Rigidbody>();
+        }
+        weaponRigidbody.isKinematic = false;
+        weaponRigidbody.useGravity = true;
+
+        if (weaponCollider == null)
+        {
+            weaponCollider = ak47Model.AddComponent<BoxCollider>();
+        }
+        weaponCollider.enabled = true;
+
+        weaponRigidbody.AddForce(transform.forward * dropForwardForce, ForceMode.VelocityChange);
+    }
+
+    void PickupWeapon()
+    {
+        if (ak47Model == null)
+        {
+            return;
+        }
+
+        if (weaponRigidbody != null)
+        {
+            weaponRigidbody.isKinematic = true;
+            weaponRigidbody.useGravity = false;
+        }
+        if (weaponCollider != null)
+        {
+            weaponCollider.enabled = false;
+        }
+
+        ak47Model.transform.SetParent(originalParent, false);
+        ak47Model.transform.localPosition = originalLocalPosition;
+        ak47Model.transform.localRotation = originalLocalRotation;
+
+        isDropped = false;
+        isEquipped = true;
+        ak47Model.SetActive(true);
+
+        // Recargamos la munición al recogerla de nuevo (opcional, quítalo si no lo quieres así)
+        currentAmmo = magazineSize;
     }
 }

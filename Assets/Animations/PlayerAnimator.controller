@@ -354,7 +354,7 @@ AnimatorStateMachine:
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: -4896970403738535353}
-    m_Position: {x: 374.3321, y: -129.92691, z: 0}
+    m_Position: {x: 490, y: -140, z: 0}
   m_AnyStateTransitions: []
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
@@ -463,12 +463,6 @@ AnimatorController:
     m_Controller: {fileID: 9100000}
   - m_Name: IsFiring
     m_Type: 4
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: AimAngle
-    m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0

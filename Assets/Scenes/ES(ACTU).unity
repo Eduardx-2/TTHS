@@ -759,7 +759,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a809b9e5d1943cf418e049e12ab6993a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1126364660}
   m_SourcePrefab: {fileID: 100100000, guid: a809b9e5d1943cf418e049e12ab6993a, type: 3}
 --- !u!1 &489882902
 GameObject:
@@ -1320,11 +1323,16 @@ MonoBehaviour:
   fireKey: 323
   aimKey: 324
   transitionSpeed: 30
+  dropKey: 120
+  pickupKey: 102
+  pickupRange: 2
+  dropForwardForce: 2
   magazineSize: 25
   fireRate: 10
   reloadTime: 1.4
   shootRange: 80
   isEquipped: 1
+  isDropped: 0
   currentAmmo: 25
 --- !u!114 &1007186620
 MonoBehaviour:
@@ -1351,6 +1359,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a809b9e5d1943cf418e049e12ab6993a, type: 3}
   m_PrefabInstance: {fileID: 432196687}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &1126364660
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126364658}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.046566047, y: 0.14726147, z: 0.45833483}
+  m_Center: {x: -0.015413699, y: 0.01700351, z: -0.040314987}
 --- !u!1 &1258449511
 GameObject:
   m_ObjectHideFlags: 0
