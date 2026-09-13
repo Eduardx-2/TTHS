@@ -1,7 +1,4 @@
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -38,24 +35,6 @@ public class PlayerCamera : MonoBehaviour
     void LateUpdate()
     {
         if (target == null) return;
-
-        // Press Escape once to free the cursor permanently (for clicking Editor UI, like Pause).
-        if (Input.GetKeyDown(KeyCode.Escape) && Cursor.lockState == CursorLockMode.Locked)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-
-#if UNITY_EDITOR
-        // Press P to pause the Editor instantly via keyboard, without needing to
-        // release the mouse button (so you can pause mid-aim without the pose changing first).
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            EditorApplication.isPaused = !EditorApplication.isPaused;
-        }
-#endif
-
-        if (Cursor.lockState != CursorLockMode.Locked) return;
 
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
