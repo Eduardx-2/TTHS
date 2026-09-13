@@ -70,4 +70,9 @@ public class PlayerCamera : MonoBehaviour
     {
         return yaw;
     }
+
+    public float GetPitch()
+    {
+        return pitch;
+    }
 }

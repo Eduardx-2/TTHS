@@ -1,7 +1,11 @@
 using UnityEngine;
+using TMPro;
 
 public class TrackVell : MonoBehaviour
 {
+    [Header("UI Marcha")]
+    public TextMeshProUGUI gearText;
+
     [Header("Cambios de marcha")]
     public KeyCode gearUpKey = KeyCode.T;
     public KeyCode gearDownKey = KeyCode.G;
@@ -12,6 +16,9 @@ public class TrackVell : MonoBehaviour
     public int minGear = -1;
     public int maxGear = 5;
     public int currentGear = 1;
+
+    [Header("Datos del vehículo (opcional)")]
+    public VehicleData vehicleData;
 
     [Header("Velocidad por marcha")]
     public float reverseSpeedCap = 7f;
@@ -28,15 +35,32 @@ public class TrackVell : MonoBehaviour
     void Awake()
     {
         carController = GetComponent<CarController>();
+        ApplyVehicleDataIfPresent();
         currentGear = Mathf.Clamp(currentGear, minGear, maxGear);
+
+        if (gearText != null)
+        {
+            gearText.gameObject.SetActive(false);
+        }
     }
 
     void Update()
     {
         if (carController != null && !carController.enabled)
         {
+            if (gearText != null && gearText.gameObject.activeSelf)
+            {
+                gearText.gameObject.SetActive(false);
+            }
             return;
         }
+
+        if (gearText != null && !gearText.gameObject.activeSelf)
+        {
+            gearText.gameObject.SetActive(true);
+        }
+
+        UpdateGearUI();
 
         if (!CanShift())
         {
@@ -51,6 +75,49 @@ public class TrackVell : MonoBehaviour
         {
             ShiftDown();
         }
+    }
+
+    void ApplyVehicleDataIfPresent()
+    {
+        if (vehicleData == null)
+        {
+            return;
+        }
+
+        reverseSpeedCap = vehicleData.reverseSpeedCap;
+        reverseAcceleration = vehicleData.reverseAcceleration;
+        neutralAcceleration = vehicleData.neutralAcceleration;
+
+        if (vehicleData.forwardSpeedCaps != null && vehicleData.forwardSpeedCaps.Length > 0)
+        {
+            forwardSpeedCaps = vehicleData.forwardSpeedCaps;
+        }
+
+        if (vehicleData.forwardAccelerations != null && vehicleData.forwardAccelerations.Length > 0)
+        {
+            forwardAccelerations = vehicleData.forwardAccelerations;
+        }
+    }
+
+    void UpdateGearUI()
+    {
+        if (gearText == null) return;
+
+        string gearDisplay;
+        if (currentGear < 0)
+        {
+            gearDisplay = "R";
+        }
+        else if (currentGear == 0)
+        {
+            gearDisplay = "N";
+        }
+        else
+        {
+            gearDisplay = currentGear.ToString();
+        }
+
+        gearText.text = $"MARCHA: {gearDisplay}";
     }
 
     bool CanShift()
@@ -140,4 +207,3 @@ public class TrackVell : MonoBehaviour
         return forwardAccelerations[index];
     }
 }
-
