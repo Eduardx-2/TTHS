@@ -22,6 +22,13 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool canMove = true;
 
+    public LayerMask GroundMask => groundMask;
+
+    public void ResetVerticalVelocity()
+    {
+        verticalVelocity = Vector3.zero;
+    }
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -30,6 +37,21 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (controller == null)
+        {
+            return;
+        }
+
+        if (!controller.enabled)
+        {
+            if (!canMove)
+            {
+                return;
+            }
+
+            controller.enabled = true;
+        }
+
         if (!canMove)
         {
             return;

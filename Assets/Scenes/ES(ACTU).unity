@@ -246,6 +246,7 @@ GameObject:
   - component: {fileID: 245757100}
   - component: {fileID: 245757099}
   - component: {fileID: 245757101}
+  - component: {fileID: 245757102}
   m_Layer: 0
   m_Name: Car
   m_TagString: Untagged
@@ -331,6 +332,10 @@ MonoBehaviour:
   exitPoint: {fileID: 548132439}
   playerCamera: {fileID: 800170720}
   carCamera: {fileID: 330585543}
+  minEjectSpeed: 4
+  lateralEjectForce: 4
+  upwardEjectForce: 2
+  forwardEjectForce: 2
 --- !u!65 &245757100
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -373,6 +378,39 @@ MonoBehaviour:
   wheelRadius: 35
   maxSteerAngle: 30
   steerReturnSpeed: 120
+--- !u!114 &245757102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245757092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5d770c04b765daa680ddbb7d197e214, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrackVell
+  gearUpKey: 116
+  gearDownKey: 103
+  shiftCooldown: 0.2
+  minGear: -1
+  maxGear: 5
+  currentGear: 1
+  reverseSpeedCap: 7
+  forwardSpeedCaps:
+  - 8
+  - 14
+  - 20
+  - 26
+  - 32
+  reverseAcceleration: 12
+  neutralAcceleration: 0
+  forwardAccelerations:
+  - 16
+  - 18
+  - 20
+  - 22
+  - 24
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1081,6 +1119,7 @@ GameObject:
   - component: {fileID: 1007186618}
   - component: {fileID: 1007186617}
   - component: {fileID: 1007186619}
+  - component: {fileID: 1007186620}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1172,6 +1211,20 @@ MonoBehaviour:
   equipKey: 102
   transitionSpeed: 30
   isEquipped: 1
+--- !u!114 &1007186620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007186615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31c8f69f45d24666a2e39bf40426cb4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRagdollController
+  ragdollDuration: 1.4
+  recoverUprightOffset: 0.9
 --- !u!1 &1126364658 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a809b9e5d1943cf418e049e12ab6993a, type: 3}
