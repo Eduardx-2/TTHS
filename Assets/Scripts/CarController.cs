@@ -24,11 +24,7 @@ public class CarController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-<<<<<<< HEAD
-=======
         trackVell = GetComponent<TrackVell>();
-        rb.freezeRotation = true;
->>>>>>> 28c40eee505819cc862f538a4daf7372a367cf2c
 
         // Bloqueamos que el auto se voltee de lado o hacia adelante (X y Z),
         // pero dejamos libre el eje Y para poder girar con angularVelocity.
