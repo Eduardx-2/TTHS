@@ -47,23 +47,42 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
+        bool isAiming = animator != null && animator.GetBool("IsAiming");
 
-        if (inputDirection.magnitude >= 0.1f)
+        // Si nos estamos moviendo O si estamos apuntando, rotamos hacia la cámara
+        if (inputDirection.magnitude >= 0.1f || isAiming)
         {
             float cameraYaw = cameraFollow != null ? cameraFollow.GetYaw() : transform.eulerAngles.y;
-            Quaternion cameraRotation = Quaternion.Euler(0f, cameraYaw, 0f);
-            Vector3 moveDirection = cameraRotation * inputDirection;
+            Vector3 targetMoveDirection;
 
-            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
-
-            controller.Move(moveDirection * currentSpeed * Time.deltaTime);
-
-            if (animator != null)
+            if (isAiming && inputDirection.magnitude < 0.1f)
             {
+                // Si estamos quietos pero apuntando, el frente del personaje mira hacia donde mira la cámara
+                targetMoveDirection = Quaternion.Euler(0f, cameraYaw, 0f) * Vector3.forward;
+            }
+            else
+            {
+                // Movimiento normal guiado por el input
+                Quaternion cameraRotation = Quaternion.Euler(0f, cameraYaw, 0f);
+                targetMoveDirection = cameraRotation * inputDirection;
+            }
+
+            if (targetMoveDirection != Vector3.zero)
+            {
+                float targetAngle = Mathf.Atan2(targetMoveDirection.x, targetMoveDirection.z) * Mathf.Rad2Deg;
+                Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+            }
+
+            if (inputDirection.magnitude >= 0.1f)
+            {
+                controller.Move(targetMoveDirection * currentSpeed * Time.deltaTime);
                 float animSpeed = (currentSpeed == sprintSpeed) ? 1f : 0.5f;
                 animator.SetFloat("Speed", animSpeed);
+            }
+            else if (animator != null)
+            {
+                animator.SetFloat("Speed", 0f);
             }
         }
         else if (animator != null)

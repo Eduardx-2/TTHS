@@ -1,22 +1,31 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-// Third-person camera that follows the PLAYER (on foot) and orbits with the mouse.
-// Put this script on a SEPARATE camera object used only while walking,
-// or swap it in on the Main Camera when the player gets out of the car.
 public class PlayerCamera : MonoBehaviour
 {
-    public Transform target;           // Drag the Capsule (Player) here
-    public float distance = 6f;        // How far the camera stays behind the player
-    public float height = 2f;          // How high above the target the camera sits
+    public Transform target;
+    public float distance = 6f;
+    public float height = 2f;
     public float mouseSensitivity = 3f;
-    public float minPitch = -20f;      // How far down you can look
-    public float maxPitch = 60f;       // How far up you can look
+    public float minPitch = -20f;
+    public float maxPitch = 60f;
 
-    private float yaw;                 // Horizontal rotation (left/right)
-    private float pitch = 15f;         // Vertical rotation (up/down)
+    [Header("Aim Settings")]
+    public Vector3 aimOffset = new Vector3(0.6f, 1.4f, -1.2f);
+    public float normalFOV = 60f;
+    public float aimFOV = 40f;
+    public float smoothSpeed = 15f;
+
+    private float yaw;
+    private float pitch = 15f;
+    private Camera cam;
+    [HideInInspector] public bool isAiming;
 
     void Start()
     {
+        cam = GetComponent<Camera>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -30,18 +39,54 @@ public class PlayerCamera : MonoBehaviour
     {
         if (target == null) return;
 
+        // Press Escape once to free the cursor permanently (for clicking Editor UI, like Pause).
+        if (Input.GetKeyDown(KeyCode.Escape) && Cursor.lockState == CursorLockMode.Locked)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+#if UNITY_EDITOR
+        // Press P to pause the Editor instantly via keyboard, without needing to
+        // release the mouse button (so you can pause mid-aim without the pose changing first).
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            EditorApplication.isPaused = !EditorApplication.isPaused;
+        }
+#endif
+
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
-        Vector3 desiredPosition = target.position - (rotation * Vector3.forward * distance) + Vector3.up * height;
+        isAiming = Input.GetMouseButton(1);
 
-        transform.position = desiredPosition;
-        transform.LookAt(target.position + Vector3.up * height * 0.5f);
+        Quaternion targetRotation = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 targetPosition;
+
+        if (isAiming)
+        {
+            targetPosition = target.position + targetRotation * aimOffset;
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, aimFOV, Time.deltaTime * smoothSpeed);
+            target.rotation = Quaternion.Euler(0f, yaw, 0f);
+        }
+        else
+        {
+            targetPosition = target.position - (targetRotation * Vector3.forward * distance) + Vector3.up * height;
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, normalFOV, Time.deltaTime * smoothSpeed);
+        }
+
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * smoothSpeed);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * smoothSpeed);
+
+        if (!isAiming)
+        {
+            transform.LookAt(target.position + Vector3.up * height * 0.5f);
+        }
     }
 
-    // Gives PlayerController access to the camera's horizontal facing direction
     public float GetYaw()
     {
         return yaw;
