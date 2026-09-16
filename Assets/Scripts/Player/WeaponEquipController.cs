@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class WeaponEquipController : MonoBehaviour
 {
@@ -10,19 +10,19 @@ public class WeaponEquipController : MonoBehaviour
     public Transform muzzle;
     public PlayerController playerController;
 
-    [Header("Configuración")]
+    [Header("ConfiguraciÃ³n")]
     public KeyCode equipKey = KeyCode.F;
     public KeyCode fireKey = KeyCode.Mouse0;
     public KeyCode aimKey = KeyCode.Mouse1;
     public float transitionSpeed = 10f;
 
     [Header("Soltar / Recoger")]
-    public KeyCode dropKey = KeyCode.X;       // G ya la usa el cambio de marchas del auto
-    public KeyCode pickupKey = KeyCode.F;     // Misma tecla que equipar
+    public KeyCode dropKey = KeyCode.X;
+    public KeyCode pickupKey = KeyCode.F;
     public float pickupRange = 2f;
     public float dropForwardForce = 2f;
 
-    [Header("Munición (fallback si weaponData es null)")]
+    [Header("MuniciÃ³n (fallback si weaponData es null)")]
     public int magazineSize = 25;
     public float fireRate = 10f;
     public float reloadTime = 1.4f;
@@ -93,8 +93,6 @@ public class WeaponEquipController : MonoBehaviour
         {
             weaponModel.SetActive(isEquipped);
 
-            // Guardamos dónde estaba originalmente el arma (en la mano) para poder
-            // devolverla ahí exactamente cuando se recoja.
             originalParent = weaponModel.transform.parent;
             originalLocalPosition = weaponModel.transform.localPosition;
             originalLocalRotation = weaponModel.transform.localRotation;
@@ -119,13 +117,11 @@ public class WeaponEquipController : MonoBehaviour
             return;
         }
 
-        // Soltar el arma al piso
         if (isEquipped && !isDropped && Input.GetKeyDown(dropKey))
         {
             DropWeapon();
         }
 
-        // Recoger el arma del piso, si estás lo bastante cerca
         if (isDropped && weaponModel != null && Input.GetKeyDown(pickupKey))
         {
             float distance = Vector3.Distance(transform.position, weaponModel.transform.position);
@@ -281,7 +277,6 @@ public class WeaponEquipController : MonoBehaviour
             animator.SetBool("IsFiring", false);
         }
 
-        // La desprendemos de la mano y la dejamos en el mundo, en su posición/rotación actual
         weaponModel.transform.SetParent(null, true);
 
         if (weaponRigidbody == null)
@@ -300,7 +295,7 @@ public class WeaponEquipController : MonoBehaviour
         weaponRigidbody.AddForce(transform.forward * dropForwardForce, ForceMode.VelocityChange);
     }
 
-    void PickupWeapon()
+    public void PickupWeapon()
     {
         if (weaponModel == null)
         {
@@ -325,7 +320,6 @@ public class WeaponEquipController : MonoBehaviour
         isEquipped = true;
         weaponModel.SetActive(true);
 
-        // Recargamos la munición al recogerla de nuevo (opcional, quítalo si no lo quieres así)
         currentAmmo = EffectiveMagazineSize;
     }
 }

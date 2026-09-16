@@ -21,13 +21,21 @@ public class VehicleEntry : MonoBehaviour
     private GameObject currentPlayer;  
     private PlayerController playerController;
     private PlayerRagdollController playerRagdollController;
+    private RadioCar radioCar;
 
     private bool isDriving = false;
+
+    public bool IsDriving => isDriving;
 
     void Start()
     {
         carController = GetComponent<CarController>();
         vehicleRigidbody = GetComponent<Rigidbody>();
+        radioCar = GetComponent<RadioCar>();
+        if (radioCar == null)
+        {
+            radioCar = gameObject.AddComponent<RadioCar>();
+        }
 
         carController.enabled = false;
         if (vehicleRigidbody != null)
@@ -92,6 +100,7 @@ public class VehicleEntry : MonoBehaviour
         }
 
         carController.enabled = true;
+        radioCar?.SetOccupied(true);
 
         if (playerCamera != null) playerCamera.SetActive(false);
         if (carCamera != null) carCamera.SetActive(true);
@@ -105,6 +114,7 @@ public class VehicleEntry : MonoBehaviour
         }
 
         isDriving = false;
+        radioCar?.SetOccupied(false);
         Vector3 vehicleVelocity = carController != null ? carController.WorldVelocity : Vector3.zero;
         float vehicleSpeed = vehicleVelocity.magnitude;
 

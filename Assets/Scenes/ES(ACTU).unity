@@ -247,6 +247,7 @@ GameObject:
   - component: {fileID: 245757099}
   - component: {fileID: 245757101}
   - component: {fileID: 245757102}
+  - component: {fileID: 245757103}
   m_Layer: 0
   m_Name: Car
   m_TagString: Untagged
@@ -397,6 +398,7 @@ MonoBehaviour:
   minGear: -1
   maxGear: 5
   currentGear: 1
+  vehicleData: {fileID: 0}
   reverseSpeedCap: 7
   forwardSpeedCaps:
   - 8
@@ -412,6 +414,19 @@ MonoBehaviour:
   - 20
   - 22
   - 24
+--- !u!114 &245757103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245757092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c4e91a2b8d04f6e9a1c3d5e7f8091b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RadioCar
+  radioKey: 113
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1315,14 +1330,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60805a9f1d594c241bc9e1a66b88bc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponEquipController
-  ak47Model: {fileID: 1126364658}
-  animator: {fileID: 999585352}
+  weaponModel: {fileID: 1126364658}
+  weaponData: {fileID: 0}
+  weaponInventory: {fileID: 0}
+  animator: {fileID: 0}
   muzzle: {fileID: 0}
   playerController: {fileID: 0}
   equipKey: 102
   fireKey: 323
   aimKey: 324
-  transitionSpeed: 30
+  transitionSpeed: 10
   dropKey: 120
   pickupKey: 102
   pickupRange: 2
