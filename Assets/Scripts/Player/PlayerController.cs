@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public float jumpCooldown = 1.2f;
     private float nextJumpTime = 0f;
 
-    [Header("Aim Pitch (inclinaci�n vertical al apuntar)")]
+    [Header("Aim Pitch (inclinación vertical al apuntar)")]
     public float aimPitchMultiplier = 1f;
     public float aimPitchSmoothing = 15f;
 

@@ -11,6 +11,7 @@ public class RadioCar : MonoBehaviour
     private bool isPaused;
     private int currentIndex = -1;
     private float salvaTiempo;
+    private bool wasPlayingOnExit;
 
     void Awake()
     {
@@ -70,14 +71,29 @@ public class RadioCar : MonoBehaviour
     public void SetOccupied(bool occupied)
     {
         isOccupied = occupied;
-        if (!occupied && audioSource != null)
+
+        if (!occupied)
         {
-            audioSource.Stop();
-            isPaused = false;
-            salvaTiempo = 0f; //salvame el tiempo variable hija de puta
-            currentIndex = -1;
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                salvaTiempo = audioSource.time; //salvame el tiempo variable hija de puta
+                wasPlayingOnExit = true;
+                audioSource.Pause();
+            }
+            else
+            {
+                wasPlayingOnExit = false;
+            }
+        }
+        else
+        {
+            if (wasPlayingOnExit && currentIndex >= 0)
+            {
+                ResumeCurrent();
+            }
         }
     }
+
 //aquí salvo el tiempo de la canción, si se pone pausa
     void PausaMusica()
     {
@@ -88,7 +104,6 @@ public class RadioCar : MonoBehaviour
 
     void ResumeCurrent()
     {
-        audioSource.time = salvaTiempo;
         audioSource.UnPause();
         if (!audioSource.isPlaying)
         {
